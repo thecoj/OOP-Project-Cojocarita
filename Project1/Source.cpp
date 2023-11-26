@@ -1,14 +1,15 @@
 #include <iostream>
 #include <string>
 #include <cstring>  
+#include <vector>
 using namespace std;
 
 class Event {
     const int id;     // identifier 
-    char* name;       // Dynamically allocated string
+    char* name;       // dynamically alloc string
     char* date;       
     char* time;       
-    static int NO_EVENTS;        // static variable for number of events
+    static int NO_EVENTS;        // static variable for nr of events
     static int ID_COUNTER;       // static counter for unique ids for events
 
    
@@ -111,3 +112,206 @@ istream& operator>>(istream& console, Event& e) {
     
     return console;
 }
+
+
+
+
+class Ticket {
+private:
+    const int ticketID;       // ID for ticket
+    char* category;           // category (VIP, etc.)
+    int seatNumber;           // seat number 
+    static int TICKET_COUNTER; // static counter to assign unique ticket IDs
+
+    // default constructor
+    Ticket() : ticketID(0), category(nullptr), seatNumber(0) {}
+
+public:
+    // constructor
+    Ticket(const char* category, int seatNumber) : ticketID(++TICKET_COUNTER), seatNumber(seatNumber) {
+        this->category = new char[strlen(category) + 1];
+        strcpy_s(this->category, strlen(category) + 1, category);
+    }
+
+    // destructor
+    ~Ticket() {
+        cout << endl << "Ticket Destructor";
+        delete[] category;
+    }
+
+    // copy constructor
+    Ticket(const Ticket& t) : ticketID(t.ticketID), seatNumber(t.seatNumber) {
+        cout << endl << "Ticket Copy Constructor";
+        this->setCategory(string(t.category));
+    }
+
+    // assignment operator
+    Ticket& operator=(const Ticket& source) {
+        cout << endl << "Ticket Assignment Operator";
+        if (this != &source) {
+            this->setCategory(string(source.category));
+            this->seatNumber = source.seatNumber;
+        }
+        return *this;
+    }
+
+    // setters and getters
+    void setCategory(string category) {
+        delete[] this->category;
+        this->category = new char[category.size() + 1];
+        strcpy_s(this->category, category.size() + 1, category.c_str());
+    }
+
+    string getCategory() const {
+        return string(this->category);
+    }
+
+    void setSeatNumber(int seatNumber) {
+        this->seatNumber = seatNumber;
+    }
+
+    int getSeatNumber() const {
+        return seatNumber;
+    }
+
+    int getTicketID() const {
+        return ticketID;
+    }
+
+    // Friend functions
+    friend ostream& operator<<(ostream& console, const Ticket& t);
+    // next i need to implement >> operator for ticket input
+
+    
+};
+
+
+int Ticket::TICKET_COUNTER = 0;
+
+// Overloaded << operator
+ostream& operator<<(ostream& console, const Ticket& t) {
+    console << "Ticket ID: " << t.ticketID << "\nCategory: " << t.category << "\nSeat Number: " << t.seatNumber;
+    return console;
+}
+
+/*
+next steps
+
+istream& operator>>(istream& console, Ticket& t) {
+    
+     return console;
+}
+
+*/
+
+
+
+
+class Seat {
+private:
+    int row;        // row nr
+    int number;     // seat nr in row
+    string type;    // seat type (regular, VIP, etc)
+
+public:
+    // constructor
+    Seat() : row(0), number(0), type("regular") {}
+
+    //constructor
+    Seat(int row, int number, string type) : row(row), number(number), type(type) {}
+
+    // getters and setters
+    int getRow() const { return row; }
+    void setRow(int newRow) { row = newRow; }
+
+    int getNumber() const { return number; }
+    void setNumber(int newNumber) { number = newNumber; }
+
+    string getType() const { return type; }
+    void setType(string newType) { type = newType; }
+
+    // overload the stream insertion operator for easy output
+    friend ostream& operator<<(ostream& os, const Seat& seat) {
+        os << "Seat Row: " << seat.row << ", Number: " << seat.number << ", Type: " << seat.type;
+        return os;
+    }
+
+   
+};
+
+
+
+
+class Venue {
+private:
+    string name;          // venue name
+    Seat* seats;          // pointer to vector Seats
+    int rows;             // Nr of rows
+    int seatsPerRow;      // Nr of seats per row
+    int maxCapacity;      // Max capacity of venue
+
+    // fct to calculate index in the array
+    int calculateIndex(int row, int seatNumber) const {
+        return (row - 1) * seatsPerRow + (seatNumber - 1);
+    }
+
+public:
+    // constructor
+    Venue() : name(""), seats(nullptr), rows(0), seatsPerRow(0), maxCapacity(0) {}
+
+    // constructor
+    Venue(string name, int rows, int seatsPerRow, int maxCapacity)
+        : name(name), rows(rows), seatsPerRow(seatsPerRow), maxCapacity(maxCapacity) {
+        seats = new Seat[rows * seatsPerRow];
+        // init seats
+        for (int i = 0; i < rows * seatsPerRow; ++i) {
+            seats[i] = Seat(); // default seat init
+        }
+    }
+
+    // copy constructor
+    Venue(const Venue& other)
+        : name(other.name), rows(other.rows), seatsPerRow(other.seatsPerRow), maxCapacity(other.maxCapacity) {
+        seats = new Seat[rows * seatsPerRow];
+        for (int i = 0; i < rows * seatsPerRow; ++i) {
+            seats[i] = other.seats[i];
+        }
+    }
+
+    // assignment operator
+    Venue& operator=(const Venue& other) {
+        if (this != &other) {
+            delete[] seats;  // Free existing seats
+
+            name = other.name;
+            rows = other.rows;
+            seatsPerRow = other.seatsPerRow;
+            maxCapacity = other.maxCapacity;
+
+            seats = new Seat[rows * seatsPerRow];
+            for (int i = 0; i < rows * seatsPerRow; ++i) {
+                seats[i] = other.seats[i];
+            }
+        }
+        return *this;
+    }
+
+    // destructor
+    ~Venue() {
+        delete[] seats;
+    }
+
+   
+    // overload 
+    friend ostream& operator<<(ostream& os, const Venue& venue);
+
+  
+};
+
+// overloaded << operator
+ostream& operator<<(ostream& os, const Venue& venue) {
+    os << "Venue Name: " << venue.name << "\nMax Capacity: " << venue.maxCapacity;
+    return os;
+}
+
+
