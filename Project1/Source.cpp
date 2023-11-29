@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
 #include <string>
 #include <cstring>  
@@ -91,14 +92,12 @@ public:
 
     // friend fct for input and output
     friend ostream& operator<<(ostream& console, const Event& e);
-    friend istream& operator>>(istream& console, Event& e);
+    friend istream& operator>>(istream& is, Event& event);
 
     
 };
 int Event::NO_EVENTS = 0;
 int Event::ID_COUNTER = 0;
-
-
 
 // overloaded << operator
 ostream& operator<<(ostream& console, const Event& e) {
@@ -108,10 +107,34 @@ ostream& operator<<(ostream& console, const Event& e) {
 
 
 // overloaded >> operator 
-istream& operator>>(istream& console, Event& e) {
-    
-    return console;
+
+
+istream& operator>>(istream& is, Event& event) {
+    char buffer[256]; // Buffer for input
+
+    cout << "Enter event name: ";
+    is.getline(buffer, 256);
+    delete[] event.name;
+    event.name = new char[strlen(buffer) + 1];
+    strcpy(event.name, buffer);
+
+    cout << "Enter event date: ";
+    is.getline(buffer, 256);
+    delete[] event.date;
+    event.date = new char[strlen(buffer) + 1];
+    strcpy(event.date, buffer);
+
+    cout << "Enter event time: ";
+    is.getline(buffer, 256);
+    delete[] event.time;
+    event.time = new char[strlen(buffer) + 1];
+    strcpy(event.time, buffer);
+
+    return is;
 }
+
+
+
 
 
 
@@ -182,6 +205,7 @@ public:
     friend ostream& operator<<(ostream& console, const Ticket& t);
     // next i need to implement >> operator for ticket input
 
+    friend istream& operator>>(istream& is, Ticket& ticket);
     
 };
 
@@ -194,15 +218,21 @@ ostream& operator<<(ostream& console, const Ticket& t) {
     return console;
 }
 
-/*
-next steps
+istream& operator>>(istream& is, Ticket& ticket) {
+    char buffer[256]; // Buffer for input
 
-istream& operator>>(istream& console, Ticket& t) {
-    
-     return console;
+    cout << "Enter ticket category: ";
+    is.getline(buffer, 256);
+    delete[] ticket.category;
+    ticket.category = new char[strlen(buffer) + 1];
+    strcpy(ticket.category, buffer);
+
+    cout << "Enter seat number: ";
+    is >> ticket.seatNumber;
+    is.ignore(); // To ignore the newline character after reading seatNumber
+
+    return is;
 }
-
-*/
 
 
 
@@ -236,8 +266,24 @@ public:
         return os;
     }
 
+    friend istream& operator>>(istream& is, Seat& seat);
+
    
 };
+
+
+istream& operator>>(istream& is, Seat& seat) {
+    cout << "Enter row number: ";
+    is >> seat.row;
+
+    cout << "Enter seat number: ";
+    is >> seat.number;
+
+    cout << "Enter seat type: ";
+    is >> seat.type;
+
+    return is;
+}
 
 
 
@@ -305,6 +351,7 @@ public:
     // overload 
     friend ostream& operator<<(ostream& os, const Venue& venue);
 
+    friend istream& operator>>(istream& is, Venue& venue);
   
 };
 
@@ -315,3 +362,29 @@ ostream& operator<<(ostream& os, const Venue& venue) {
 }
 
 
+istream& operator>>(istream& is, Venue& venue) {
+    cout << "Enter venue name: ";
+    getline(is, venue.name);
+
+    cout << "Enter number of rows: ";
+    is >> venue.rows;
+
+    cout << "Enter number of seats per row: ";
+    is >> venue.seatsPerRow;
+
+    // Assuming you need to update or set up the seating arrangement
+    delete[] venue.seats; // Clear existing seats
+    venue.seats = new Seat[venue.rows * venue.seatsPerRow];
+    for (int i = 0; i < venue.rows * venue.seatsPerRow; ++i) {
+        // Read each seat details here
+        // ...
+    }
+
+    return is;
+}
+
+
+int main()
+{
+    return 0;
+}
