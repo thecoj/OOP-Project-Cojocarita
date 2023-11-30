@@ -6,97 +6,104 @@
 using namespace std;
 
 class Event {
-    const int id;     // identifier 
-    char* name;       // dynamically alloc string
-    char* date;       
-    char* time;       
-    static int NO_EVENTS;        // static variable for nr of events
-    static int ID_COUNTER;       // static counter for unique ids for events
+private:
+    const int id;        // ID for the event
+    char* name;          // event name
+    char* date;          // event date
+    char* time;          // event time
+    static int ID_COUNTER; // Static counter for generating unique IDs
 
-   
-    Event() : id(0), name(nullptr), date(nullptr), time(nullptr) {}
+    // Private default constructor
+    Event() : id(++ID_COUNTER), name(nullptr), date(nullptr), time(nullptr) {}
 
 public:
-    //  constructor
+    // Parameterized constructor
     Event(const char* name, const char* date, const char* time) : id(++ID_COUNTER) {
         this->name = new char[strlen(name) + 1];
-        strcpy_s(this->name, strlen(name) + 1, name);
-
+        strcpy(this->name, name);
         this->date = new char[strlen(date) + 1];
-        strcpy_s(this->date, strlen(date) + 1, date);
-
+        strcpy(this->date, date);
         this->time = new char[strlen(time) + 1];
-        strcpy_s(this->time, strlen(time) + 1, time);
-
-        NO_EVENTS += 1;
+        strcpy(this->time, time);
     }
 
-    // destructor
-    ~Event() {
-        cout << endl << "Event Destructor";
-        delete[] name;
-        delete[] date;
-        delete[] time;
-        NO_EVENTS -= 1;
+    // Copy constructor
+    Event(const Event& other) : id(other.id) {
+        name = new char[strlen(other.name) + 1];
+        strcpy(name, other.name);
+        date = new char[strlen(other.date) + 1];
+        strcpy(date, other.date);
+        time = new char[strlen(other.time) + 1];
+        strcpy(time, other.time);
     }
 
-    // copy constructor
-    Event(const Event& e) : id(e.id) {
-        cout << endl << "Event Copy Constructor";
-        this->setName(string(e.name));
-        this->setDate(string(e.date));
-        this->setTime(string(e.time));
-        NO_EVENTS += 1;
-    }
-
-
-    // = operator
-    Event& operator=(const Event& source) {
-        cout << endl << "Event Assignment Operator";
-        if (this != &source) {
-            this->setName(string(source.name));
-            this->setDate(string(source.date));
-            this->setTime(string(source.time));
+    // Assignment operator
+    Event& operator=(const Event& other) {
+        if (this != &other) {
+            delete[] name;
+            delete[] date;
+            delete[] time;
+            name = new char[strlen(other.name) + 1];
+            strcpy(name, other.name);
+            date = new char[strlen(other.date) + 1];
+            strcpy(date, other.date);
+            time = new char[strlen(other.time) + 1];
+            strcpy(time, other.time);
         }
         return *this;
     }
 
-
-
-    // set w/ dynamic memory 
-    void setName(string name) {
-        delete[] this->name;
-        this->name = new char[name.size() + 1];
-        strcpy_s(this->name, name.size() + 1, name.c_str());
+    // Destructor
+    ~Event() {
+        delete[] name;
+        delete[] date;
+        delete[] time;
     }
 
-
-    void setDate(string date) {
-        delete[] this->date;
-        this->date = new char[date.size() + 1];
-        strcpy_s(this->date, date.size() + 1, date.c_str());
+    // Getters
+    const char* getName() const {
+        return name;
     }
 
-    void setTime(string time) {
-        delete[] this->time;
-        this->time = new char[time.size() + 1];
-        strcpy_s(this->time, time.size() + 1, time.c_str());
+    const char* getDate() const {
+        return date;
     }
 
+    const char* getTime() const {
+        return time;
+    }
 
+    int getId() const {
+        return id;
+    }
 
-    // getters
-    string getName() const { return string(this->name); }
-    string getDate() const { return string(this->date); }
-    string getTime() const { return string(this->time); }
+    // Setters
+    void setName(const char* newName) {
+        delete[] name;
+        name = new char[strlen(newName) + 1];
+        strcpy(name, newName);
+    }
 
+    void setDate(const char* newDate) {
+        delete[] date;
+        date = new char[strlen(newDate) + 1];
+        strcpy(date, newDate);
+    }
+
+    void setTime(const char* newTime) {
+        delete[] time;
+        time = new char[strlen(newTime) + 1];
+        strcpy(time, newTime);
+    }
+
+    
     // friend fct for input and output
     friend ostream& operator<<(ostream& console, const Event& e);
     friend istream& operator>>(istream& is, Event& event);
 
     
 };
-int Event::NO_EVENTS = 0;
+
 int Event::ID_COUNTER = 0;
 
 // overloaded << operator
@@ -372,7 +379,7 @@ istream& operator>>(istream& is, Venue& venue) {
     cout << "Enter number of seats per row: ";
     is >> venue.seatsPerRow;
 
-    // Assuming you need to update or set up the seating arrangement
+    // to update or set up the seating arrangement
     delete[] venue.seats; // Clear existing seats
     venue.seats = new Seat[venue.rows * venue.seatsPerRow];
     for (int i = 0; i < venue.rows * venue.seatsPerRow; ++i) {
