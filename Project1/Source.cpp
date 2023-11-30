@@ -96,6 +96,17 @@ public:
         strcpy(time, newTime);
     }
 
+    //  indexing operator []
+    const char* operator[](int index) const {
+        switch (index) {
+        case 0: return name;
+        case 1: return date;
+        case 2: return time;
+        default: throw out_of_range("Invalid index");
+        }
+    }
+
+
     
     // friend fct for input and output
     friend ostream& operator<<(ostream& console, const Event& e);
@@ -146,10 +157,10 @@ istream& operator>>(istream& is, Event& event) {
 
 class Ticket {
 private:
-    static int ID_COUNTER;   // Static counter for generating unique ticket IDs
-    const int ticketID;      // Unique ID for each ticket
-    char* category;          // Dynamically allocated string for ticket category
-    int seatNumber;          // Seat number associated with the ticket
+    static int ID_COUNTER;   // Static counter for unique ticket IDs
+    const int ticketID;      // Unique ID
+    char* category;          // ticket category
+    int seatNumber;          // Seat number 
 
 public:
     // Default constructor
@@ -208,6 +219,19 @@ public:
         seatNumber = newSeatNumber;
     }
 
+    //  indexing operator []
+    const char* operator[](int index) const {
+        switch (index) {
+        case 0: return category;
+        case 1:
+            static char seatNumBuffer[20];
+            sprintf(seatNumBuffer, "%d", seatNumber);
+            return seatNumBuffer;
+        default: throw out_of_range("Invalid index");
+        }
+    }
+
+
     // Friend functions for input and output
     friend ostream& operator<<(ostream& os, const Ticket& ticket);
     friend istream& operator>>(istream& is, Ticket& ticket);
@@ -236,55 +260,118 @@ istream& operator>>(istream& is, Ticket& ticket) {
 
 
 
-
 class Seat {
 private:
-    int row;        // row nr
-    int number;     // seat nr in row
-    string type;    // seat type (regular, VIP, etc)
+    int row;           // Row number of the seat
+    int number;        // Seat number
+    char* type;        // Dynamically allocated string for seat type
 
 public:
-    // constructor
-    Seat() : row(0), number(0), type("regular") {}
-
-    //constructor
-    Seat(int row, int number, string type) : row(row), number(number), type(type) {}
-
-    // getters and setters
-    int getRow() const { return row; }
-    void setRow(int newRow) { row = newRow; }
-
-    int getNumber() const { return number; }
-    void setNumber(int newNumber) { number = newNumber; }
-
-    string getType() const { return type; }
-    void setType(string newType) { type = newType; }
-
-    // overload the stream insertion operator 
-    friend ostream& operator<<(ostream& os, const Seat& seat) {
-        os << "Seat Row: " << seat.row << ", Number: " << seat.number << ", Type: " << seat.type;
-        return os;
+    // Default constructor
+    Seat() : row(0), number(0), type(new char[1]) {
+        strcpy(type, "");
     }
 
-    friend istream& operator>>(istream& is, Seat& seat);
+    // Parameterized constructor
+    Seat(int row, int number, const char* type) : row(row), number(number) {
+        this->type = new char[strlen(type) + 1];
+        strcpy(this->type, type);
+    }
 
-   
+    // Copy constructor
+    Seat(const Seat& other) : row(other.row), number(other.number) {
+        type = new char[strlen(other.type) + 1];
+        strcpy(type, other.type);
+    }
+
+    // Assignment operator
+    Seat& operator=(const Seat& other) {
+        if (this != &other) {
+            delete[] type;
+            type = new char[strlen(other.type) + 1];
+            strcpy(type, other.type);
+            row = other.row;
+            number = other.number;
+        }
+        return *this;
+    }
+
+    // Destructor
+    ~Seat() {
+        delete[] type;
+    }
+
+    // Getters
+    int getRow() const {
+        return row;
+    }
+
+    int getNumber() const {
+        return number;
+    }
+
+    const char* getType() const {
+        return type;
+    }
+
+    // Setters
+    void setRow(int newRow) {
+        row = newRow;
+    }
+
+    void setNumber(int newNumber) {
+        number = newNumber;
+    }
+
+    void setType(const char* newType) {
+        delete[] type;
+        type = new char[strlen(newType) + 1];
+        strcpy(type, newType);
+    }
+
+    //  indexing operator []
+    const char* operator[](int index) const {
+        switch (index) {
+        case 0:
+            static char rowNumBuffer[20];
+            sprintf(rowNumBuffer, "%d", row);
+            return rowNumBuffer;
+        case 1:
+            static char seatNumBuffer[20];
+            sprintf(seatNumBuffer, "%d", number);
+            return seatNumBuffer;
+        case 2: return type;
+        default: throw out_of_range("Invalid index");
+        }
+    }
+
+
+    // Friend functions for input and output
+    friend ostream& operator<<(ostream& os, const Seat& seat);
+    friend istream& operator>>(istream& is, Seat& seat);
 };
 
+ostream& operator<<(ostream& os, const Seat& seat) {
+    os << "Seat Row: " << seat.row << ", Number: " << seat.number << ", Type: " << seat.type;
+    return os;
+}
 
 istream& operator>>(istream& is, Seat& seat) {
-    cout << "Enter row number: ";
+    cout << "Enter seat row: ";
     is >> seat.row;
+    is.ignore(); // Ignore newline character
 
     cout << "Enter seat number: ";
     is >> seat.number;
+    is.ignore(); // Ignore newline character
 
     cout << "Enter seat type: ";
-    is >> seat.type;
+    char buffer[256];
+    is.getline(buffer, 256);
+    seat.setType(buffer);
 
     return is;
 }
-
 
 
 
@@ -347,6 +434,91 @@ public:
         delete[] seats;
     }
 
+    // Getters
+    string getName() const {
+        return name;
+    }
+
+    int getRows() const {
+        return rows;
+    }
+
+    int getSeatsPerRow() const {
+        return seatsPerRow;
+    }
+
+    int getMaxCapacity() const {
+        return maxCapacity;
+    }
+
+    Seat getSeat(int row, int seatNumber) const {
+        int index = calculateIndex(row, seatNumber);
+        if (index >= 0 && index < rows * seatsPerRow) {
+            return seats[index];
+        }
+        else {
+            throw out_of_range("Index out of range");
+        }
+    }
+
+    // Setters
+    void setName(const string& newName) {
+        name = newName;
+    }
+
+    void setRows(int newRows) {
+        rows = newRows;
+        resizeSeats();
+    }
+
+    void setSeatsPerRow(int newSeatsPerRow) {
+        seatsPerRow = newSeatsPerRow;
+        resizeSeats();
+    }
+
+    void setMaxCapacity(int newMaxCapacity) {
+        maxCapacity = newMaxCapacity;
+    }
+
+    void setSeat(int row, int seatNumber, const Seat& seat) {
+        int index = calculateIndex(row, seatNumber);
+        if (index >= 0 && index < rows * seatsPerRow) {
+            seats[index] = seat;
+        }
+        else {
+            throw out_of_range("Index out of range");
+        }
+    }
+
+    //  indexing operator []
+    Seat& operator[](int index) {
+        if (index >= 0 && index < rows * seatsPerRow) {
+            return seats[index];
+        }
+        else {
+            throw out_of_range("Index out of range");
+        }
+    }
+
+    const Seat& operator[](int index) const {
+        if (index >= 0 && index < rows * seatsPerRow) {
+            return seats[index];
+        }
+        else {
+            throw out_of_range("Index out of range");
+        }
+    }
+
+    
+    // Helper method to resize the seats array when rows or seatsPerRow change
+    void resizeSeats() {
+        delete[] seats;
+        seats = new Seat[rows * seatsPerRow];
+        for (int i = 0; i < rows * seatsPerRow; ++i) {
+            seats[i] = Seat(); // Reinitialize seats
+        }
+    }
+
    
     // overload 
     friend ostream& operator<<(ostream& os, const Venue& venue);
@@ -395,9 +567,45 @@ istream& operator>>(istream& is, Venue& venue) {
     return is;
 }
 
+// need to overload:
+// at least one mathematical operator (+,-,* or /)
+//  ++ or -- (with the 2 forms)
+// the cast operator (to any type) explicitly or implicitly
+// the negation operator !
+// a conditional operator (<.>,=<,>=)
+// operator for testing equality between 2 objects ==
 
 
-int main()
-{
+int main() {
+    try {
+        //Event
+        Event event("Concert", "2023-07-15", "20:00");
+        cout << "Event Details: " << event << endl;
+        cout << "Event Name using []: " << event[0] << endl; // Assuming index 0 is for the name
+
+        //Ticket
+        Ticket ticket("VIP", 101);
+        cout << "Ticket Details: " << ticket << endl;
+        cout << "Ticket Category using []: " << ticket[0] << endl; // Assuming index 0 is for category
+
+        //Seat
+        Seat seat(5, 10, "Regular");
+        cout << "Seat Details: " << seat << endl;
+        cout << "Seat Type using []: " << seat[2] << endl; // Assuming index 2 is for seat type
+
+        //Venue
+        Venue venue("Theater", 2, 5, 10);
+        cout << "Venue Details: " << venue << endl;
+        cout << "Seat at index 3 in Venue: " << venue[3] << endl; // Accessing the 4th seat in the venue
+
+        // Setting and getting properties
+        venue.setSeat(1, 1, Seat(1, 1, "VIP")); // Setting the first seat to VIP
+        cout << "Updated first seat: " << venue.getSeat(1, 1) << endl;
+
+    }
+    catch (const std::exception& e) {
+        cout << "An error occurred: " << e.what() << endl;
+    }
+
     return 0;
 }
