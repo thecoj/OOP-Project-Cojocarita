@@ -3,11 +3,13 @@
 #include <string>
 #include <cstring>  
 #include <vector>
+#include <sstream>
+#include <iomanip>
 using namespace std;
 
 class Event {
 private:
-    const int id;        // ID for the event
+    const int id;        // ID for event
     char* name;          // event name
     char* date;          // event date
     char* time;          // event time
@@ -106,6 +108,72 @@ public:
         }
     }
 
+    // Overloading + 
+    Event operator+(int days) {
+        std::tm tm = {};
+        std::stringstream ss(date);
+        ss >> std::get_time(&tm, "%Y-%m-%d");
+        tm.tm_mday += days;
+        mktime(&tm);
+
+        std::stringstream result;
+        result << std::put_time(&tm, "%Y-%m-%d");
+        return Event(name, result.str().c_str(), time);
+    }
+
+    // Overloading - 
+    Event operator-(int days) {
+        std::tm tm = {};
+        std::stringstream ss(date);
+        ss >> std::get_time(&tm, "%Y-%m-%d");
+        tm.tm_mday -= days;
+        mktime(&tm);
+
+        std::stringstream result;
+        result << std::put_time(&tm, "%Y-%m-%d");
+        return Event(name, result.str().c_str(), time);
+    }
+
+    
+
+    // Overloading ++ (Prefix)
+    Event& operator++() {
+        std::tm tm = {};
+        std::stringstream ss(date);
+        ss >> std::get_time(&tm, "%Y-%m-%d");
+        tm.tm_mday += 1;
+        mktime(&tm);
+
+        char newDate[11]; // Buffer to hold the new date string
+        strftime(newDate, sizeof(newDate), "%Y-%m-%d", &tm);
+
+        delete[] date; // Free the old date
+        date = new char[11];
+        strcpy(date, newDate); // Update the date
+
+        return *this;
+    }
+
+    // Overloading ++ (Postfix)
+    Event operator++(int) {
+        Event temp(*this); // Create a copy of the current object
+
+        // Increment date logic
+        std::tm tm = {};
+        std::stringstream ss(this->date);
+        ss >> std::get_time(&tm, "%Y-%m-%d");
+        tm.tm_mday += 1;
+        mktime(&tm);
+
+        char newDate[11];
+        strftime(newDate, sizeof(newDate), "%Y-%m-%d", &tm);
+
+        delete[] this->date;
+        this->date = new char[11];
+        strcpy(this->date, newDate);
+
+        return temp; // Return the original state
+    }
 
     
     // friend fct for input and output
@@ -157,24 +225,25 @@ istream& operator>>(istream& is, Event& event) {
 
 class Ticket {
 private:
-    static int ID_COUNTER;   // Static counter for unique ticket IDs
-    const int ticketID;      // Unique ID
+    static int ID_COUNTER;   // counter unique ticket IDs
+    const int ticketID;      // Unique ID for each ticket
     char* category;          // ticket category
     int seatNumber;          // Seat number 
+    int price;               // Price of ticket
 
 public:
     // Default constructor
-    Ticket() : ticketID(++ID_COUNTER), category(nullptr), seatNumber(0) {}
+    Ticket() : ticketID(++ID_COUNTER), category(nullptr), seatNumber(0), price(0) {}
 
     // Parameterized constructor
-    Ticket(const char* category, int seatNumber)
-        : ticketID(++ID_COUNTER), seatNumber(seatNumber) {
+    Ticket(const char* category, int seatNumber, int price)
+        : ticketID(++ID_COUNTER), seatNumber(seatNumber), price(price) {
         this->category = new char[strlen(category) + 1];
         strcpy(this->category, category);
     }
 
     // Copy constructor
-    Ticket(const Ticket& other) : ticketID(other.ticketID), seatNumber(other.seatNumber) {
+    Ticket(const Ticket& other) : ticketID(other.ticketID), seatNumber(other.seatNumber), price(other.price) {
         category = new char[strlen(other.category) + 1];
         strcpy(category, other.category);
     }
@@ -186,6 +255,7 @@ public:
             category = new char[strlen(other.category) + 1];
             strcpy(category, other.category);
             seatNumber = other.seatNumber;
+            price = other.price;
         }
         return *this;
     }
@@ -208,6 +278,10 @@ public:
         return seatNumber;
     }
 
+    int getPrice() const {
+        return price;
+    }
+
     // Setters
     void setCategory(const char* newCategory) {
         delete[] category;
@@ -219,18 +293,37 @@ public:
         seatNumber = newSeatNumber;
     }
 
-    //  indexing operator []
-    const char* operator[](int index) const {
-        switch (index) {
-        case 0: return category;
-        case 1:
-            static char seatNumBuffer[20];
-            sprintf(seatNumBuffer, "%d", seatNumber);
-            return seatNumBuffer;
-        default: throw out_of_range("Invalid index");
-        }
+    void setPrice(int newPrice) {
+        price = newPrice;
     }
 
+    // Overloading + and - 
+    Ticket operator+(int value) {
+        Ticket newTicket = *this;
+        newTicket.price += value;
+        return newTicket;
+    }
+
+    Ticket operator-(int value) {
+        Ticket newTicket = *this;
+        newTicket.price -= value;
+        return newTicket;
+    }
+
+
+    // Overloading ++ (Prefix)
+    Ticket& operator++() {
+        // Increment the ticket's price
+        price++;
+        return *this;
+    }
+
+    // Overloading ++ (Postfix)
+    Ticket operator++(int) {
+        Ticket temp = *this; // Create a copy of the current state
+        ++(*this);           // Increment the price using the prefix version
+        return temp;         // Return the original state
+    }
 
     // Friend functions for input and output
     friend ostream& operator<<(ostream& os, const Ticket& ticket);
@@ -240,7 +333,8 @@ public:
 int Ticket::ID_COUNTER = 0;
 
 ostream& operator<<(ostream& os, const Ticket& ticket) {
-    os << "Ticket ID: " << ticket.ticketID << "\nCategory: " << ticket.category << "\nSeat Number: " << ticket.seatNumber;
+    os << "Ticket ID: " << ticket.ticketID << "\nCategory: " << ticket.category
+        << "\nSeat Number: " << ticket.seatNumber << "\nPrice: $" << ticket.price;
     return os;
 }
 
@@ -255,6 +349,10 @@ istream& operator>>(istream& is, Ticket& ticket) {
     is >> ticket.seatNumber;
     is.ignore(); // To ignore the newline character after reading seatNumber
 
+    cout << "Enter ticket price: ";
+    is >> ticket.price;
+    is.ignore(); // To ignore the newline character after reading price
+
     return is;
 }
 
@@ -262,8 +360,8 @@ istream& operator>>(istream& is, Ticket& ticket) {
 
 class Seat {
 private:
-    int row;           // Row number of the seat
-    int number;        // Seat number
+    int row;           // Row nr of the seat
+    int number;        // Seat nr
     char* type;        // Dynamically allocated string for seat type
 
 public:
@@ -343,6 +441,34 @@ public:
         case 2: return type;
         default: throw out_of_range("Invalid index");
         }
+    }
+
+    // Overloading + 
+    Seat operator+(int value) {
+        Seat newSeat = *this;
+        newSeat.number += value;  // Adjust seat number
+        return newSeat;
+    }
+
+    // Overloading - 
+    Seat operator-(int value) {
+        Seat newSeat = *this;
+        newSeat.number -= value;  // Adjust seat number
+        return newSeat;
+    }
+
+    // Overloading ++ (Prefix)
+    Seat& operator++() {
+        // Increment the seat number
+        number++;
+        return *this;
+    }
+
+    // Overloading ++ (Postfix)
+    Seat operator++(int) {
+        Seat temp = *this; 
+        ++(*this);         
+        return temp;       
     }
 
 
@@ -519,6 +645,35 @@ public:
         }
     }
 
+    // Overloading + 
+    Venue operator+(int additionalRows) {
+        Venue newVenue = *this;
+        newVenue.rows += additionalRows;
+        newVenue.maxCapacity = newVenue.rows * newVenue.seatsPerRow;
+        delete[] newVenue.seats;
+        newVenue.seats = new Seat[newVenue.rows * newVenue.seatsPerRow];
+        // Initialize new seats
+        for (int i = 0; i < newVenue.rows * newVenue.seatsPerRow; ++i) {
+            newVenue.seats[i] = Seat(); // Default initialization
+        }
+        return newVenue;
+    }
+
+    // Overloading - 
+    Venue operator-(int removedRows) {
+        Venue newVenue = *this;
+        newVenue.rows = max(0, newVenue.rows - removedRows); // Ensure rows don't go below 0
+        newVenue.maxCapacity = newVenue.rows * newVenue.seatsPerRow;
+        delete[] newVenue.seats;
+        newVenue.seats = new Seat[newVenue.rows * newVenue.seatsPerRow];
+        // Initialize new seats
+        for (int i = 0; i < newVenue.rows * newVenue.seatsPerRow; ++i) {
+            newVenue.seats[i] = Seat(); // Default initialization
+        }
+        return newVenue;
+    }
+
+    
    
     // overload 
     friend ostream& operator<<(ostream& os, const Venue& venue);
@@ -568,39 +723,43 @@ istream& operator>>(istream& is, Venue& venue) {
 }
 
 // need to overload:
-// at least one mathematical operator (+,-,* or /)
-//  ++ or -- (with the 2 forms)
 // the cast operator (to any type) explicitly or implicitly
 // the negation operator !
 // a conditional operator (<.>,=<,>=)
 // operator for testing equality between 2 objects ==
 
-
 int main() {
     try {
-        //Event
-        Event event("Concert", "2023-07-15", "20:00");
-        cout << "Event Details: " << event << endl;
-        cout << "Event Name using []: " << event[0] << endl; // Assuming index 0 is for the name
+        // Testing Event
+        Event event("Concert", "2023-08-15", "20:00");
+        cout << "Original Event: " << event << endl;
+        ++event; // Prefix increment
+        cout << "Event after Prefix Increment: " << event << endl;
+        event++; // Postfix increment
+        cout << "Event after Postfix Increment: " << event << endl;
 
-        //Ticket
-        Ticket ticket("VIP", 101);
-        cout << "Ticket Details: " << ticket << endl;
-        cout << "Ticket Category using []: " << ticket[0] << endl; // Assuming index 0 is for category
 
-        //Seat
+        // Testing Ticket
+        Ticket ticket("VIP", 101, 50);
+        cout << "Original Ticket: " << ticket << endl;
+        ++ticket; // Prefix increment
+        cout << "Ticket after Prefix Increment: " << ticket << endl;
+        ticket++; // Postfix increment
+        cout << "Ticket after Postfix Increment: " << ticket << endl;
+
+        // Testing Seat
         Seat seat(5, 10, "Regular");
-        cout << "Seat Details: " << seat << endl;
-        cout << "Seat Type using []: " << seat[2] << endl; // Assuming index 2 is for seat type
+        cout << "Original Seat: " << seat << endl;
+        ++seat; // Prefix increment
+        cout << "Seat after Prefix Increment: " << seat << endl;
+        seat++; // Postfix increment
+        cout << "Seat after Postfix Increment: " << seat << endl;
 
-        //Venue
+        // Testing Venue
         Venue venue("Theater", 2, 5, 10);
         cout << "Venue Details: " << venue << endl;
-        cout << "Seat at index 3 in Venue: " << venue[3] << endl; // Accessing the 4th seat in the venue
-
-        // Setting and getting properties
-        venue.setSeat(1, 1, Seat(1, 1, "VIP")); // Setting the first seat to VIP
-        cout << "Updated first seat: " << venue.getSeat(1, 1) << endl;
+        Venue expandedVenue = venue + 1; // Add one more row
+        cout << "Expanded Venue: " << expandedVenue << endl;
 
     }
     catch (const std::exception& e) {
