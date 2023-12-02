@@ -175,7 +175,35 @@ public:
         return temp; // Return the original state
     }
 
-    
+    explicit operator std::string() const {
+        std::string result = "Event Name: ";
+        result += name;
+        result += ", Date: ";
+        result += date;
+        result += ", Time: ";
+        result += time;
+        return result;
+    }
+
+    // Overloading !
+    bool operator!() const {
+        return strcmp(date, "") == 0; // True if date is empty
+    }
+
+
+    // Overloading < (less than) operator
+    bool operator<(const Event& other) const {
+        // Compare based on dates
+        return strcmp(date, other.date) < 0;
+    }
+
+    // Overloading == (equality) operator
+    bool operator==(const Event& other) const {
+        return strcmp(name, other.name) == 0 &&
+            strcmp(date, other.date) == 0 &&
+            strcmp(time, other.time) == 0;
+    }
+
     // friend fct for input and output
     friend ostream& operator<<(ostream& console, const Event& e);
     friend istream& operator>>(istream& is, Event& event);
@@ -325,6 +353,33 @@ public:
         return temp;         // Return the original state
     }
 
+
+    // Explicit cast to std::string
+    explicit operator std::string() const {
+        ostringstream oss;
+        oss << "Ticket Category: " << category << ", Seat Number: " << seatNumber
+            << ", Price: $" << price;
+        return oss.str();
+    }
+
+    // operator !
+    bool operator!() const {
+        return price == 0; // True if the ticket is free
+    }
+
+    // operator <
+    bool operator<(const Ticket& other) const {
+        // Compare based on ticket price
+        return price < other.price;
+    }
+
+    // Overloading == (equality) operator
+    bool operator==(const Ticket& other) const {
+        return strcmp(category, other.category) == 0 &&
+            seatNumber == other.seatNumber &&
+            price == other.price;
+    }
+
     // Friend functions for input and output
     friend ostream& operator<<(ostream& os, const Ticket& ticket);
     friend istream& operator>>(istream& is, Ticket& ticket);
@@ -469,6 +524,34 @@ public:
         Seat temp = *this; 
         ++(*this);         
         return temp;       
+    }
+
+    // Explicit cast to std::string
+    explicit operator std::string() const {
+        ostringstream oss;
+        oss << "Seat Row: " << row << ", Number: " << number
+            << ", Type: " << (type ? type : "Unknown");
+        return oss.str();
+    }
+
+    // Overloading !
+    bool operator!() const {
+        return number == 0; // True if the seat is unassigned
+    }
+
+    // Overloading <
+    bool operator<(const Seat& other) const {
+        if (row == other.row) {
+            return number < other.number; // Compare by seat number if rows are the same
+        }
+        return row < other.row; // Compare by row number
+    }
+
+    // Overloading == (equality) operator
+    bool operator==(const Seat& other) const {
+        return row == other.row &&
+            number == other.number &&
+            strcmp(type, other.type) == 0;
     }
 
 
@@ -673,9 +756,23 @@ public:
         return newVenue;
     }
 
+    // Explicit cast to std::string
+    explicit operator std::string() const {
+        ostringstream oss;
+        oss << "Venue Name: " << name
+            << ", Rows: " << rows
+            << ", Seats Per Row: " << seatsPerRow
+            << ", Max Capacity: " << maxCapacity;
+        return oss.str();
+    }
+
+    // Overloading !
+    bool operator!() const {
+        return rows == 0 || seatsPerRow == 0; // True if the venue has no seats
+    }
     
    
-    // overload 
+    // overload << >>
     friend ostream& operator<<(ostream& os, const Venue& venue);
 
     friend istream& operator>>(istream& is, Venue& venue);
@@ -722,14 +819,12 @@ istream& operator>>(istream& is, Venue& venue) {
     return is;
 }
 
-// need to overload:
-// the cast operator (to any type) explicitly or implicitly
-// the negation operator !
-// a conditional operator (<.>,=<,>=)
-// operator for testing equality between 2 objects ==
+
 
 int main() {
     try {
+
+
         // Testing Event
         Event event("Concert", "2023-08-15", "20:00");
         cout << "Original Event: " << event << endl;
@@ -737,6 +832,16 @@ int main() {
         cout << "Event after Prefix Increment: " << event << endl;
         event++; // Postfix increment
         cout << "Event after Postfix Increment: " << event << endl;
+        // Explicit cast to std::string
+        std::string eventString = static_cast<std::string>(event);
+        std::cout << "Event as String: " << eventString << std::endl;
+        cout << "Event is default? " << (!event ? "Yes" : "No") << endl;
+        //overloading <
+        Event event1("Concert", "2023-08-15", "20:00");
+        Event event2("Seminar", "2023-08-20", "10:00");
+        cout << "Is event1 earlier than event2? " << (event1 < event2 ? "Yes" : "No") << endl;
+        //== operator
+        cout << "Are event1 and event2 equal? " << (event1 == event2 ? "Yes" : "No") << endl;
 
 
         // Testing Ticket
@@ -746,6 +851,18 @@ int main() {
         cout << "Ticket after Prefix Increment: " << ticket << endl;
         ticket++; // Postfix increment
         cout << "Ticket after Postfix Increment: " << ticket << endl;
+        // Explicit cast to std::string
+        std::string ticketString = static_cast<std::string>(ticket);
+        std::cout << "Ticket as String: " << ticketString << std::endl;
+        cout << "Ticket is free? " << (!ticket ? "Yes" : "No") << endl;
+        //overloading <
+        Ticket ticket1("VIP", 101, 50); // price 50
+        Ticket ticket2("Standard", 102, 30); // price 30
+        cout << "Is ticket1 cheaper than ticket2? " << (ticket1 < ticket2 ? "Yes" : "No") << endl;
+        //overloading ==
+        cout << "Are ticket1 and ticket2 equal? " << (ticket1 == ticket2 ? "Yes" : "No") << endl;
+
+
 
         // Testing Seat
         Seat seat(5, 10, "Regular");
@@ -754,12 +871,32 @@ int main() {
         cout << "Seat after Prefix Increment: " << seat << endl;
         seat++; // Postfix increment
         cout << "Seat after Postfix Increment: " << seat << endl;
+        // Explicit cast to std::string
+        std::string seatString = static_cast<std::string>(seat);
+        std::cout << "Seat as String: " << seatString << std::endl;
+        cout << "Seat is unassigned? " << (!seat ? "Yes" : "No") << endl;
+        //overloading <
+        Seat seat1(5, 10, "Regular"); // Seat in row 5, number 10
+        Seat seat2(5, 15, "Regular"); // Seat in row 5, number 15
+
+        cout << "Is seat1 closer to the front than seat2? " << (seat1 < seat2 ? "Yes" : "No") << endl;
+        //overloading ==
+        cout << "Are seat1 and seat2 equal? " << (seat1 == seat2 ? "Yes" : "No") << endl;
+
+
+
 
         // Testing Venue
         Venue venue("Theater", 2, 5, 10);
         cout << "Venue Details: " << venue << endl;
         Venue expandedVenue = venue + 1; // Add one more row
         cout << "Expanded Venue: " << expandedVenue << endl;
+        // Explicit cast to std::string
+        std::string venueString = static_cast<std::string>(venue);
+        std::cout << "Venue as String: " << venueString << std::endl;
+        cout << "Venue has no seats? " << (!venue ? "Yes" : "No") << endl;
+
+
 
     }
     catch (const std::exception& e) {
