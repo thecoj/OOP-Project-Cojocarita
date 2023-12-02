@@ -1,3 +1,9 @@
+
+//Cojocarita Cristian, year 3, Ticketing App, 
+//4 classes: Event, Ticket, Seat and Venue.
+//Class Venue doesn't have all the overloading required
+
+
 #define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
 #include <string>
