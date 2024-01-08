@@ -7,6 +7,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
 #include <string>
+#include <fstream>
 #include <cstring>  
 #include <vector>
 #include <sstream>
@@ -731,7 +732,7 @@ public:
         seats = new Seat[rows * seatsPerRow];
         for (int i = 0; i < rows * seatsPerRow; ++i) {
             seats[i] = Seat(); // Reinitialize seats
-        }
+        } 
     }
 
     // Overloading + 
@@ -825,7 +826,7 @@ istream& operator>>(istream& is, Venue& venue) {
     return is;
 }
 
-
+/*
 
 int main() {
     try {
@@ -907,6 +908,37 @@ int main() {
     }
     catch (const std::exception& e) {
         cout << "An error occurred: " << e.what() << endl;
+    }
+
+    return 0;
+}
+
+*/
+
+int main(int argc, char* argv[]) {
+    // Check if a command line parameter is provided
+    if (argc < 2) {
+        // No command line parameter provided, display menu for console input
+        cout << "Welcome to the Ticketing App!\n";
+        // Add your existing menu code here
+    }
+    else {
+        // Command line parameter provided (e.g., filename)
+        string filename = argv[1];
+        ifstream file(filename);
+
+        if (!file.is_open()) {
+            // Failed to open the file
+            cerr << "Error: Could not open file '" << filename << "'.\n";
+            return 1;
+        }
+
+        // Process data from the file
+        cout << "Processing data from file: " << filename << "\n";
+        // Add code to read data from the file
+
+        // Close the file
+        file.close();
     }
 
     return 0;
