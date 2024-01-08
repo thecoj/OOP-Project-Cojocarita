@@ -918,26 +918,92 @@ int main() {
 int main(int argc, char* argv[]) {
     // Check if a command line parameter is provided
     if (argc < 2) {
-        // No command line parameter provided, display menu for console input
+        // If no command line parameter is provided => display menu for console input
         cout << "Welcome to the Ticketing App!\n";
-        // Add your existing menu code here
+        
+        int choice;
+
+        do {
+            // Display menu options
+            cout << "Ticketing App Menu:\n";
+            cout << "1. Book Ticket\n";
+            cout << "2. View Tickets\n";
+            cout << "3. Save Tickets to Binary File\n";
+            cout << "4. Load Tickets from Binary File\n";
+            cout << "0. Exit\n";
+            cout << "Enter your choice: ";
+            cin >> choice;
+
+            switch (choice) {
+            case 1:
+                Ticket newTicket;
+
+                // Prompt the user for ticket details
+                cout << "Enter ticket details:\n";
+                cout << "Enter event name: ";
+                cin >> newTicket.eventName;
+
+                cout << "Enter seat row: ";
+                cin >> newTicket.seatRow;
+
+                cout << "Enter seat number: ";
+                cin >> newTicket.seatNumber;
+
+                cout << "Enter ticket price: ";
+                cin >> newTicket.price;
+
+                // Display booking confirmation
+                cout << "\nTicket booked successfully!\n";
+
+                break;
+            case 2:
+                if (ticketsVector.empty()) {
+                    cout << "\nNo tickets booked yet.\n";
+                }
+                else {
+                    // Display header
+                    cout << "\nList of booked tickets:\n";
+                    cout << "-------------------------------------------\n";
+
+                    // Display each booked ticket
+                    for (const Ticket& ticket : ticketsVector) {
+                        cout << "Event: " << ticket.eventName << "\n";
+                        cout << "Seat: Row " << ticket.seatRow << ", Number " << ticket.seatNumber << "\n";
+                        cout << "Price: $" << ticket.price << "\n";
+                        cout << "-------------------------------------------\n";
+                    }
+                }
+                break;
+            case 3:
+                // Add code for saving tickets to a binary file
+                break;
+            case 4:
+                // Add code for loading tickets from a binary file
+                break;
+            case 0:
+                cout << "Exiting the Ticketing App. Goodbye!\n";
+                break;
+            default:
+                cout << "Invalid choice. Please try again.\n";
+            }
+        } while (choice != 0);
     }
     else {
-        // Command line parameter provided (e.g., filename)
+        
         string filename = argv[1];
         ifstream file(filename);
 
         if (!file.is_open()) {
-            // Failed to open the file
+            // failed to open file
             cerr << "Error: Could not open file '" << filename << "'.\n";
             return 1;
         }
 
-        // Process data from the file
+        // Process data 
         cout << "Processing data from file: " << filename << "\n";
-        // Add code to read data from the file
+        // Next => code to read data from the file
 
-        // Close the file
+       
         file.close();
     }
 
