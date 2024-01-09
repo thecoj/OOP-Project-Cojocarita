@@ -1,0 +1,4 @@
+Ticket ID: 1
+Category: 
+Seat Number: 14
+Price: $120
