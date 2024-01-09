@@ -124,7 +124,26 @@ int main(int argc, char* argv[]) {
             cout << "Tickets saved successfully to " << filename << endl;
             break;
         }
-        case 4: {
+        case 4: { 
+            int ticketID;
+            cout << "Enter Ticket ID: ";
+            cin >> ticketID;
+
+            bool found = false;
+            for (const auto& ticket : tickets) {
+                if (ticket.getTicketID() == ticketID) {
+                    ticket.print(); 
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                cout << "Ticket with ID " << ticketID << " not found." << endl;
+            }
+            break;
+        }
+        case 5: {
             exitProgram = true;
             break;
         }

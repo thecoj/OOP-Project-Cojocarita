@@ -7,12 +7,13 @@
 #include <vector>
 #include <sstream>
 #include <iomanip>
+#include "Printable.h"
 using namespace std;
 
 
 
 
-class Ticket {
+class Ticket: public Printable {
 private:
     static int ID_COUNTER;   // counter unique ticket IDs
     const int ticketID;      // Unique ID for each ticket
@@ -178,6 +179,13 @@ public:
         in.read(reinterpret_cast<char*>(&seatNumber), sizeof(seatNumber));
         in.read(reinterpret_cast<char*>(&price), sizeof(price));
     }
+
+    void print() const override {
+        std::cout << "Ticket Category: " << category
+            << ", Seat Number: " << seatNumber
+            << ", Price: " << price << std::endl;
+    }
+
 
 };
 
