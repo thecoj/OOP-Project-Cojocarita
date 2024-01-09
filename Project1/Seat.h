@@ -7,7 +7,7 @@
 #include <vector>
 #include <sstream>
 #include <iomanip>
-using namespace std; 
+using namespace std;
 
 
 
@@ -180,4 +180,3 @@ istream& operator>>(istream& is, Seat& seat) {
 
     return is;
 }
-

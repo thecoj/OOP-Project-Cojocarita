@@ -76,7 +76,8 @@ int main(int argc, char* argv[]) {
         cout << "1. Add Ticket" << endl;
         cout << "2. Display Tickets" << endl;
         cout << "3. Save Tickets to File" << endl;
-        cout << "4. Exit" << endl;
+        cout << "4. Print File" << endl;
+        cout << "5. Exit" << endl;
 
         int choice;
         cin >> choice;
@@ -87,11 +88,23 @@ int main(int argc, char* argv[]) {
             int seatNumber;
             int price;
 
-            cout << "Enter ticket category: ";
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear the input buffer
+
+            cout << "Enter ticket name: ";
             getline(cin, category);
 
             cout << "Enter seat number: ";
             cin >> seatNumber;
+
+            // Check and clear any extraneous input in the buffer
+            if (cin.fail()) {
+                cin.clear(); // Clear error flags
+                cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Discard the input buffer
+                cout << "Invalid input for seat number. Please try again." << endl;
+                continue; // Skip the rest of this iteration
+            }
+
+       
 
             cout << "Enter ticket price: ";
             cin >> price;

@@ -27,9 +27,11 @@ public:
 
     // Parameterized constructor
     Ticket(const char* category, int seatNumber, int price)
-        : ticketID(++ID_COUNTER), seatNumber(seatNumber), price(price) {
+        : ticketID(++ID_COUNTER) {  // Initialize 'ticketID' here
         this->category = new char[strlen(category) + 1];
         strcpy(this->category, category);
+        this->seatNumber = seatNumber;
+        this->price = price;
     }
 
     // Copy constructor
@@ -85,6 +87,13 @@ public:
 
     void setPrice(int newPrice) {
         price = newPrice;
+    }
+
+
+    void print() const override {
+        std::cout << "Ticket Category: " << category
+            << ", Seat Number: " << seatNumber
+            << ", Price: " << price << std::endl;
     }
 
     // Overloading + and - 
@@ -147,7 +156,7 @@ public:
     friend istream& operator>>(istream& is, Ticket& ticket);
 
     void serialize(ostream& out) const {
-        
+
         size_t length = strlen(category); // Get the length of the C-style string
         out.write(reinterpret_cast<const char*>(&length), sizeof(length)); // Write the length
         out.write(category, length); // Write the string data
@@ -157,12 +166,8 @@ public:
         out.write(reinterpret_cast<const char*>(&price), sizeof(price));
     }
 
-    Ticket(const char* category, int seatNumber, int price) {
-        this->category = new char[strlen(category) + 1];
-        strcpy(this->category, category);
-        this->seatNumber = seatNumber;
-        this->price = price;
-    }
+
+   
 
     void deserialize(istream& in) {
         // Deserialize 'category' (C-style string)
@@ -180,11 +185,6 @@ public:
         in.read(reinterpret_cast<char*>(&price), sizeof(price));
     }
 
-    void print() const override {
-        std::cout << "Ticket Category: " << category
-            << ", Seat Number: " << seatNumber
-            << ", Price: " << price << std::endl;
-    }
 
 
 };

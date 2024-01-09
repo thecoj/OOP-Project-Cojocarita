@@ -8,7 +8,7 @@
 #include <sstream>
 #include <iomanip>
 
-using namespace std; 
+using namespace std;
 
 
 
@@ -21,14 +21,14 @@ private:
     char* time;          // event time
     static int ID_COUNTER; // Static counter for generating unique IDs
 
-    
+
 
     // Private default constructor
     Event() : id(++ID_COUNTER), name(nullptr), date(nullptr), time(nullptr) {}
 
 public:
 
-  
+
 
     // Parameterized constructor
     Event(const char* name, const char* date, const char* time) : id(++ID_COUNTER) {
@@ -257,6 +257,5 @@ istream& operator>>(istream& is, Event& event) {
 
     return is;
 }
-
 
 

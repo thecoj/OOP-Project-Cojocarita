@@ -8,7 +8,7 @@
 #include <sstream>
 #include <iomanip>
 #include "Seat.h"
-using namespace std; 
+using namespace std;
 
 
 
