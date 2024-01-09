@@ -403,6 +403,7 @@ ostream& operator<<(ostream& os, const Ticket& ticket) {
 istream& operator>>(istream& is, Ticket& ticket) {
     char buffer[256];
 
+
     cout << "Enter ticket category: ";
     is.getline(buffer, 256);
     ticket.setCategory(buffer);
@@ -826,185 +827,124 @@ istream& operator>>(istream& is, Venue& venue) {
     return is;
 }
 
-/*
-
-int main() {
-    try {
 
 
-        // Testing Event
-        Event event("Concert", "2023-08-15", "20:00");
-        cout << "Original Event: " << event << endl;
-        ++event; // Prefix increment
-        cout << "Event after Prefix Increment: " << event << endl;
-        event++; // Postfix increment
-        cout << "Event after Postfix Increment: " << event << endl;
-        // Explicit cast to std::string
-        std::string eventString = static_cast<std::string>(event);
-        std::cout << "Event as String: " << eventString << std::endl;
-        cout << "Event is default? " << (!event ? "Yes" : "No") << endl;
-        //overloading <
-        Event event1("Concert", "2023-08-15", "20:00");
-        Event event2("Seminar", "2023-08-20", "10:00");
-        cout << "Is event1 earlier than event2? " << (event1 < event2 ? "Yes" : "No") << endl;
-        //== operator
-        cout << "Are event1 and event2 equal? " << (event1 == event2 ? "Yes" : "No") << endl;
-
-
-        // Testing Ticket
-        Ticket ticket("VIP", 101, 50);
-        cout << "Original Ticket: " << ticket << endl;
-        ++ticket; // Prefix increment
-        cout << "Ticket after Prefix Increment: " << ticket << endl;
-        ticket++; // Postfix increment
-        cout << "Ticket after Postfix Increment: " << ticket << endl;
-        // Explicit cast to std::string
-        std::string ticketString = static_cast<std::string>(ticket);
-        std::cout << "Ticket as String: " << ticketString << std::endl;
-        cout << "Ticket is free? " << (!ticket ? "Yes" : "No") << endl;
-        //overloading <
-        Ticket ticket1("VIP", 101, 50); // price 50
-        Ticket ticket2("Standard", 102, 30); // price 30
-        cout << "Is ticket1 cheaper than ticket2? " << (ticket1 < ticket2 ? "Yes" : "No") << endl;
-        //overloading ==
-        cout << "Are ticket1 and ticket2 equal? " << (ticket1 == ticket2 ? "Yes" : "No") << endl;
-
-
-
-        // Testing Seat
-        Seat seat(5, 10, "Regular");
-        cout << "Original Seat: " << seat << endl;
-        ++seat; // Prefix increment
-        cout << "Seat after Prefix Increment: " << seat << endl;
-        seat++; // Postfix increment
-        cout << "Seat after Postfix Increment: " << seat << endl;
-        // Explicit cast to std::string
-        std::string seatString = static_cast<std::string>(seat);
-        std::cout << "Seat as String: " << seatString << std::endl;
-        cout << "Seat is unassigned? " << (!seat ? "Yes" : "No") << endl;
-        //overloading <
-        Seat seat1(5, 10, "Regular"); // Seat in row 5, number 10
-        Seat seat2(5, 15, "Regular"); // Seat in row 5, number 15
-
-        cout << "Is seat1 closer to the front than seat2? " << (seat1 < seat2 ? "Yes" : "No") << endl;
-        //overloading ==
-        cout << "Are seat1 and seat2 equal? " << (seat1 == seat2 ? "Yes" : "No") << endl;
-
-
-
-
-        // Testing Venue
-        Venue venue("Theater", 2, 5, 10);
-        cout << "Venue Details: " << venue << endl;
-        Venue expandedVenue = venue + 1; // Add one more row
-        cout << "Expanded Venue: " << expandedVenue << endl;
-        // Explicit cast to std::string
-        std::string venueString = static_cast<std::string>(venue);
-        std::cout << "Venue as String: " << venueString << std::endl;
-        cout << "Venue has no seats? " << (!venue ? "Yes" : "No") << endl;
-
-
-
-    }
-    catch (const std::exception& e) {
-        cout << "An error occurred: " << e.what() << endl;
-    }
-
-    return 0;
-}
-
-*/
 
 int main(int argc, char* argv[]) {
-    // Check if a command line parameter is provided
-    if (argc < 2) {
-        // If no command line parameter is provided => display menu for console input
-        cout << "Welcome to the Ticketing App!\n";
-        
-        int choice;
-
-        do {
-            // Display menu options
-            cout << "Ticketing App Menu:\n";
-            cout << "1. Book Ticket\n";
-            cout << "2. View Tickets\n";
-            cout << "3. Save Tickets to Binary File\n";
-            cout << "4. Load Tickets from Binary File\n";
-            cout << "0. Exit\n";
-            cout << "Enter your choice: ";
-            cin >> choice;
-
-            switch (choice) {
-            case 1:
-                Ticket newTicket;
-
-                // Prompt the user for ticket details
-                cout << "Enter ticket details:\n";
-                cout << "Enter event name: ";
-                cin >> newTicket.eventName;
-
-                cout << "Enter seat row: ";
-                cin >> newTicket.seatRow;
-
-                cout << "Enter seat number: ";
-                cin >> newTicket.seatNumber;
-
-                cout << "Enter ticket price: ";
-                cin >> newTicket.price;
-
-                // Display booking confirmation
-                cout << "\nTicket booked successfully!\n";
-
-                break;
-            case 2:
-                if (ticketsVector.empty()) {
-                    cout << "\nNo tickets booked yet.\n";
-                }
-                else {
-                    // Display header
-                    cout << "\nList of booked tickets:\n";
-                    cout << "-------------------------------------------\n";
-
-                    // Display each booked ticket
-                    for (const Ticket& ticket : ticketsVector) {
-                        cout << "Event: " << ticket.eventName << "\n";
-                        cout << "Seat: Row " << ticket.seatRow << ", Number " << ticket.seatNumber << "\n";
-                        cout << "Price: $" << ticket.price << "\n";
-                        cout << "-------------------------------------------\n";
-                    }
-                }
-                break;
-            case 3:
-                // Add code for saving tickets to a binary file
-                break;
-            case 4:
-                // Add code for loading tickets from a binary file
-                break;
-            case 0:
-                cout << "Exiting the Ticketing App. Goodbye!\n";
-                break;
-            default:
-                cout << "Invalid choice. Please try again.\n";
-            }
-        } while (choice != 0);
+    // Check if a command-line argument (filename) is provided
+    if (argc != 2) {
+        cerr << "Usage: " << argv[0] << " <data_file.txt>" << endl;
+        return 1;
     }
-    else {
-        
-        string filename = argv[1];
-        ifstream file(filename);
 
-        if (!file.is_open()) {
-            // failed to open file
-            cerr << "Error: Could not open file '" << filename << "'.\n";
-            return 1;
+    // Initialize a vector to store Ticket objects
+    vector<Ticket> tickets;
+
+    // Load data from the file (if it exists)
+    string filename = argv[1];
+    ifstream inputFile(filename);
+    if (inputFile.is_open()) {
+        // Implement code to read and populate the tickets vector from the file
+        // Each line in the file should correspond to a Ticket object
+        while (!inputFile.eof()) {
+            Ticket ticket;
+            // Read data from the file and set it in the Ticket object
+            // Example: inputFile >> ticket.someData;
+            tickets.push_back(ticket);
         }
+        inputFile.close();
+    }
 
-        // Process data 
-        cout << "Processing data from file: " << filename << "\n";
-        // Next => code to read data from the file
+    bool exitProgram = false;
 
-       
-        file.close();
+    // Implement a menu loop for user interaction
+    while (!exitProgram) {
+        cout << "Menu:" << endl;
+        cout << "1. Add Ticket" << endl;
+        cout << "2. Display Tickets" << endl;
+        cout << "3. Save Tickets to File" << endl;
+        cout << "4. Exit" << endl;
+
+        int choice;
+        cin >> choice;
+
+        switch (choice) {
+        case 1: {
+            string newCategory;
+            int newSeatNumber;
+            int newPrice;
+
+            // Prompt the user for input
+            cout << "Enter Ticket Information:" << endl;
+
+            // Prompt the user for other data members
+            cout << "Category: ";
+            cin.ignore(); // Ignore newline character from previous input
+            getline(cin, newCategory);
+
+            cout << "Seat Number: ";
+            cin >> newSeatNumber;
+
+            cout << "Price: ";
+            cin >> newPrice;
+
+            // Create a new Ticket object with the provided data
+            Ticket newTicket(newCategory.c_str(), newSeatNumber, newPrice);
+
+            tickets.push_back(newTicket);
+            cout << "Ticket added successfully!" << endl;
+            break;
+        }
+        case 2: {
+            if (tickets.empty()) {
+                cout << "No tickets found." << endl;
+            }
+            else {
+                cout << "Tickets Information:" << endl;
+                for (const Ticket& ticket : tickets) {
+                    // Implement code to display the ticket's data
+                    cout << "Ticket ID: " << ticket.getTicketID() << endl;
+                    cout << "Category: " << ticket.getCategory() << endl; // Use getCategory method
+                    cout << "Seat Number: " << ticket.getSeatNumber() << endl; // Use getSeatNumber method
+                    cout << "Price: " << ticket.getPrice() << endl; // Use getPrice method
+
+                    cout << "-------------------------" << endl; // Separator between tickets
+                }
+            }
+            break;
+        }
+        case 3: {
+            string filename;
+            cout << "Enter the filename to save tickets: ";
+            cin >> filename;
+
+            ofstream outputFile(filename);
+            if (outputFile.is_open()) {
+                // Implement code to write each ticket's data to the file
+                for (const Ticket& ticket : tickets) {
+                    // Implement code to write the ticket's data to the file
+                    outputFile << "Ticket ID: " << ticket.getTicketID() << endl;
+                    outputFile << "Category: " << ticket.getCategory() << endl; // Use getCategory method
+                    outputFile << "Seat Number: " << ticket.getSeatNumber() << endl; // Use getSeatNumber method
+                    outputFile << "Price: " << ticket.getPrice() << endl; // Use getPrice method
+
+                    outputFile << "-------------------------" << endl; // Separator between tickets
+                }
+                outputFile.close();
+                cout << "Tickets saved to " << filename << " successfully." << endl;
+            }
+            else {
+                cout << "Failed to open " << filename << " for writing." << endl;
+            }
+            break;
+        }
+        case 4:
+            // Exit the program
+            exitProgram = true;
+            break;
+        default:
+            cout << "Invalid choice. Please try again." << endl;
+        }
     }
 
     return 0;
